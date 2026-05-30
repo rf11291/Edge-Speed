@@ -1,8 +1,17 @@
 const VERSION = 'v0.4.0-workers';
 const ONE_MIB = 1024 * 1024;
 const DOWNLOAD_CHUNK_SIZE = 64 * 1024;
-const DOWNLOAD_CHUNK = new Uint8Array(DOWNLOAD_CHUNK_SIZE);
-crypto.getRandomValues(DOWNLOAD_CHUNK);
+let cachedDownloadChunk = null;
+
+function getDownloadChunk() {
+  if (cachedDownloadChunk) return cachedDownloadChunk;
+  const chunk = new Uint8Array(DOWNLOAD_CHUNK_SIZE);
+  for (let i = 0; i < chunk.length; i += 1) {
+    chunk[i] = (i * 31 + 17) & 0xff;
+  }
+  cachedDownloadChunk = chunk;
+  return chunk;
+}
 
 const ipInfoCache = new Map();
 
@@ -163,6 +172,7 @@ function handleDownload(request, env, url) {
   }
 
   const config = configFromEnv(env);
+  const downloadChunk = getDownloadChunk();
   const bytes = parseRequestedBytes(url, config.maxDownloadBytes);
   if (bytes === null) {
     return jsonResponse(request, env, 400, { ok: false, error: `invalid_bytes_parameter_max_${config.maxDownloadBytes}` });

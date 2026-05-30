@@ -1,0 +1,19 @@
+name = "open-edge-speed"
+main = "src/worker.js"
+compatibility_date = "2025-04-01"
+
+assets = { directory = "./public", binding = "ASSETS" }
+
+[observability]
+enabled = true
+
+[vars]
+SITE_NAME = "Open Edge Speed"
+SERVER_REGION = ""
+EXPOSE_CLIENT_IP = "1"
+MAX_DOWNLOAD_BYTES = "512MiB"
+MAX_UPLOAD_BYTES = "99MiB"
+ALLOWED_ORIGINS = ""
+IP_INFO_API_URL = ""
+IP_INFO_TIMEOUT_MS = "1200"
+IP_INFO_CACHE_TTL_SECONDS = "3600"

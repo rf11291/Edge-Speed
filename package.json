@@ -1,0 +1,19 @@
+{
+  "name": "open-edge-speed-cloudflare-workers",
+  "version": "0.4.0-workers",
+  "private": true,
+  "description": "Cloudflare Workers edge speed test site.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "node --check src/worker.js && node --check public/app.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

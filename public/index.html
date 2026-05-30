@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Open Edge Speed</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到测速结果</a>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Open Edge Speed 首页">
+      <span class="brand-mark" aria-hidden="true">↯</span>
+      <span class="brand-text">Open Edge Speed</span>
+      <span class="version-pill">v0.4.0-workers</span>
+    </a>
+    <nav class="topnav" aria-label="页面导航">
+      <button id="themeToggle" class="theme-button" type="button" aria-label="切换主题" title="切换主题"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A7.6 7.6 0 0 1 9.4 3.8a8.2 8.2 0 1 0 10.8 10.8Z"/></svg></button>
+    </nav>
+  </header>
+
+  <main id="main" class="shell">
+    <section class="panel result-panel" aria-label="测速结果">
+      <div class="run-strip">
+        <div class="run-actions">
+          <button id="startButton" class="primary-button" type="button"><span id="startLabel">开始测速</span></button>
+          <button id="stopButton" class="secondary-button" type="button" disabled>停止</button>
+        </div>
+        <div class="run-status" aria-live="polite">
+          <span id="runState" class="state-pill ready">待测试</span>
+          <span id="statusText">准备就绪</span>
+          <span id="errorText" class="error-text"></span>
+        </div>
+        <div class="progress-block" aria-label="测速进度">
+          <span id="progressPercent">0%</span>
+          <div class="progress-track"><span id="progressBar"></span></div>
+        </div>
+      </div>
+
+      <div id="metrics" class="primary-grid">
+        <button class="speed-card download-card" type="button" data-detail="download">
+          <span class="card-top"><span>下载速率</span><small id="downloadSamples">0 样本</small></span>
+          <span class="speed-value"><strong id="downloadValue">--</strong><em>Mbps</em></span>
+          <span id="downloadHint" class="metric-hint">等待样本</span>
+          <span class="chart-box"><canvas id="downloadChart"></canvas><span id="downloadTooltip" class="chart-tooltip" hidden></span></span>
+        </button>
+
+        <button class="speed-card upload-card" type="button" data-detail="upload">
+          <span class="card-top"><span>上传速率</span><small id="uploadSamples">0 样本</small></span>
+          <span class="speed-value"><strong id="uploadValue">--</strong><em>Mbps</em></span>
+          <span id="uploadHint" class="metric-hint">等待样本</span>
+          <span class="chart-box"><canvas id="uploadChart"></canvas><span id="uploadTooltip" class="chart-tooltip" hidden></span></span>
+        </button>
+
+        <button class="quality-card" type="button" data-detail="quality">
+          <span class="card-top"><span>网络质量</span><small>Score</small></span>
+          <span id="qualityGauge" class="quality-gauge" style="--score:0"><strong id="qualityScoreValue">--</strong></span>
+          <span id="qualityWord" class="quality-word">等待测试</span>
+          <span id="qualityNote" class="metric-hint">完成后显示综合评分</span>
+        </button>
+      </div>
+
+      <div class="metric-grid">
+        <button class="metric-card" type="button" data-detail="latency">
+          <span>空闲延迟</span>
+          <strong><b id="latencyValue">--</b><em>ms</em></strong>
+          <small id="latencyHint">等待样本</small>
+        </button>
+        <button class="metric-card" type="button" data-detail="loaded">
+          <span>负载延迟</span>
+          <strong><b id="loadedLatencyValue">--</b><em>ms</em></strong>
+          <small id="loadedLatencyHint">等待样本</small>
+        </button>
+        <button class="metric-card" type="button" data-detail="jitter">
+          <span>抖动</span>
+          <strong><b id="jitterValue">--</b><em>ms</em></strong>
+          <small id="jitterHint">等待样本</small>
+        </button>
+      </div>
+    </section>
+
+    <section class="info-grid" aria-label="连接信息">
+      <article class="panel info-card" data-detail="connection" tabindex="0">
+        <div class="section-heading"><span>Connection</span><h2>客户端与节点</h2></div>
+        <dl class="kv-list">
+          <div><dt>客户端 IP</dt><dd id="clientIpText">--</dd></div>
+          <div><dt>位置</dt><dd id="clientLocationText">--</dd></div>
+          <div><dt>ISP</dt><dd id="clientIspText">--</dd></div>
+          <div><dt>ASN</dt><dd id="clientAsnText">--</dd></div>
+          <div><dt>协议</dt><dd id="clientIpVersionText">--</dd></div>
+          <div><dt>浏览器</dt><dd id="clientBrowserText">--</dd></div>
+          <div><dt>测速节点</dt><dd id="serverRegionText">--</dd></div>
+        </dl>
+      </article>
+
+    </section>
+
+    <section class="panel latency-panel" aria-label="延迟曲线">
+      <div class="section-heading chart-heading">
+        <div><span>Latency</span><h2>延迟曲线</h2></div>
+        <button class="text-button" type="button" data-detail="latency">查看延迟样本</button>
+      </div>
+      <div class="large-chart"><canvas id="latencyChart"></canvas><span id="latencyTooltip" class="chart-tooltip" hidden></span></div>
+    </section>
+
+    <section id="details" class="panel details-panel" aria-labelledby="details-title">
+      <div class="section-heading detail-heading">
+        <div><span>Measurements</span><h2 id="details-title">样本明细</h2></div>
+        <div class="export-actions">
+          <button id="exportJsonButton" class="secondary-button small" type="button" disabled>导出 JSON</button>
+          <button id="exportCsvButton" class="secondary-button small" type="button" disabled>导出 CSV</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="details-table">
+          <thead>
+            <tr>
+              <th>类型</th>
+              <th>大小 / 阶段</th>
+              <th>样本</th>
+              <th>主值</th>
+              <th>P50</th>
+              <th>P90</th>
+              <th>最小</th>
+              <th>最大</th>
+              <th>中位耗时</th>
+            </tr>
+          </thead>
+          <tbody id="detailsBody"><tr><td colspan="9" class="empty-cell">暂无样本</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="detailDialog" class="detail-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-head">
+        <div><span id="dialogKicker">Details</span><h2 id="dialogTitle">详情</h2><p id="dialogSubtitle">--</p></div>
+        <button class="nav-button" value="close" aria-label="关闭详情">关闭</button>
+      </div>
+      <div id="dialogStats" class="dialog-stats"></div>
+      <div class="table-scroll dialog-table-wrap">
+        <table class="details-table raw-table">
+          <thead id="dialogTableHead"></thead>
+          <tbody id="dialogTableBody"></tbody>
+        </table>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="footer">
+    <span>Open Edge Speed v0.4.0-workers</span>
+    <a href="/about">About</a>
+  </footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>

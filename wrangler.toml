@@ -1,4 +1,4 @@
-name = "open-edge-speed"
+name = "edge-speed"
 main = "src/worker.js"
 compatibility_date = "2025-04-01"
 

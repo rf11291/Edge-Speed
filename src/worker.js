@@ -1,11 +1,11 @@
 const VERSION = 'v0.4.0-workers';
 const ONE_MIB = 1024 * 1024;
-const DOWNLOAD_CHUNK_SIZE = 64 * 1024;
+const downloadChunk_SIZE = 64 * 1024;
 let cachedDownloadChunk = null;
 
 function getDownloadChunk() {
   if (cachedDownloadChunk) return cachedDownloadChunk;
-  const chunk = new Uint8Array(DOWNLOAD_CHUNK_SIZE);
+  const chunk = new Uint8Array(downloadChunk_SIZE);
   for (let i = 0; i < chunk.length; i += 1) {
     chunk[i] = (i * 31 + 17) & 0xff;
   }
@@ -202,8 +202,8 @@ function handleDownload(request, env, url) {
         controller.close();
         return;
       }
-      const chunkSize = Math.min(remaining, DOWNLOAD_CHUNK.byteLength);
-      const chunk = chunkSize === DOWNLOAD_CHUNK.byteLength ? DOWNLOAD_CHUNK : DOWNLOAD_CHUNK.subarray(0, chunkSize);
+      const chunkSize = Math.min(remaining, downloadChunk.byteLength);
+      const chunk = chunkSize === downloadChunk.byteLength ? downloadChunk : downloadChunk.subarray(0, chunkSize);
       remaining -= chunkSize;
       controller.enqueue(chunk);
       if (remaining <= 0) controller.close();
